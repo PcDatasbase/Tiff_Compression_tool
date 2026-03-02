@@ -37,7 +37,7 @@ class TiffCompressor:
                              imagej=True if metadata else False)
             return self._get_compression_stats(output_path)
         except Exception as e:
-            raise Exception(f"Tifffile compression failed: {str(e)}")
+            raise Exception(f"Tiff file compression failed: {str(e)}")
 
     def _get_compression_stats(self, output_path):
         """Calculate compression statistics."""
@@ -68,7 +68,7 @@ class TiffCompressorManager:
         for tiff_file in input_dir.glob('*.tif*'):
             try:
                 compressor = TiffCompressor(tiff_file)
-                output_path = output_dir / f"compressed_{tiff_file.name}"
+                output_path = output_dir / f"_{tiff_file.name}"
 
                 stats = compressor.compress_with_tifffile(output_path, method)
 
@@ -82,20 +82,12 @@ class TiffCompressorManager:
     def compress_file(cls, file, compression_type='zip'):
         folder = os.path.abspath(os.path.join(file, os.pardir))
         name = os.path.join(folder, os.path.splitext(os.path.basename(file))[0])
-        compressed_name = name + '_compressed_' + compression_type + ".tif"
+        compressed_name = name + '_' + compression_type + ".tif"
 
         # For a single file
         compressor = TiffCompressor(file)
         compressed_file = compressor.compress_with_tifffile(compressed_name, method=compression_type)
         return compressed_name
-
-        # For a directory of files
-        # results = batch_compress_directory(
-        #     input_dir="raw_images/",
-        #     output_dir="compressed_images/",
-        #     method='lzw',
-        #     use_tifffile=True
-        # )
 
     @classmethod
     def compress_and_check(cls, file):
@@ -103,8 +95,5 @@ class TiffCompressorManager:
         check_compression(file, compressed_filename)
 
 
-# This is a test
-if __name__ == '__main__':
-    folder = "C:\\Git\\tests\\bak_09_12_24\\test_for_ai\\Dossier_A\\"
-    TiffCompressorManager.compress_and_check(folder + "1.tif")
+
 
