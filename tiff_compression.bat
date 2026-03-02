@@ -1,4 +1,3 @@
 @echo off
 call .venv\Scripts\activate.bat
-python app/tiff_compression_gui.py %*
-pause
+start /b pythonw app/tiff_compression_gui.py %*
