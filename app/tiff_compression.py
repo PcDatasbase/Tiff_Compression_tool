@@ -1,7 +1,7 @@
 import tifffile
 import os
 from pathlib import Path
-from compression_check import check_compression
+from .compression_check import check_compression
 
 
 def is_already_compressed(file_path):

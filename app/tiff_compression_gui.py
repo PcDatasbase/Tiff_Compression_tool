@@ -2,8 +2,8 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import os
 from pathlib import Path
-from tiff_compression import TiffCompressorManager
-from compression_check import check_compression
+from .tiff_compression import TiffCompressorManager
+from .compression_check import check_compression
 
 
 class TiffCompressorGUI:
@@ -166,9 +166,3 @@ class TiffCompressorGUI:
         self.results_text.insert(tk.END, text)
         self.results_text.see(tk.END)
         self.root.update()
-
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = TiffCompressorGUI(root)
-    root.mainloop()
