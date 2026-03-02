@@ -4,6 +4,39 @@ from pathlib import Path
 from compression_check import check_compression
 
 
+def is_already_compressed(file_path):
+    """
+    Check if a TIFF file is already compressed.
+    Returns tuple: (is_compressed: bool, compression_method: str)
+    """
+    try:
+        with tifffile.TiffFile(file_path) as tif:
+            # Get the first page's compression
+            compression = tif.pages[0].compression
+            
+            # Compression types:
+            # 1 = No compression
+            # 5 = LZW
+            # 8 = ZIP/Deflate
+            # 32773 = PackBits
+            # etc.
+            
+            compression_map = {
+                1: 'none',
+                5: 'lzw',
+                8: 'zip/deflate',
+                32773: 'packbits',
+                32946: 'deflate'
+            }
+            
+            compression_name = compression_map.get(compression, f'unknown ({compression})')
+            is_compressed = compression != 1  # 1 means uncompressed
+            
+            return is_compressed, compression_name
+    except Exception as e:
+        raise Exception(f"Error checking compression status: {str(e)}")
+
+
 class TiffCompressor:
     """
     Handles lossless compression of TIFF files using various methods.
@@ -79,15 +112,32 @@ class TiffCompressorManager:
         return results
 
     @classmethod
-    def compress_file(cls, file, compression_type='zip'):
+    def compress_file(cls, file, compression_type='zip', skip_if_compressed=True):
+        """
+        Compress a TIFF file.
+        
+        Args:
+            file: Path to the TIFF file
+            compression_type: Compression method to use ('zip', 'lzw', 'packbits')
+            skip_if_compressed: If True, skip compression for already-compressed files
+            
+        Returns:
+            tuple: (output_path, was_already_compressed, existing_compression_method)
+        """
+        # Check if already compressed
+        is_compressed, existing_method = is_already_compressed(file)
+        
+        if skip_if_compressed and is_compressed:
+            return file, True, existing_method
+        
         folder = os.path.abspath(os.path.join(file, os.pardir))
         name = os.path.join(folder, os.path.splitext(os.path.basename(file))[0])
         compressed_name = name + '_' + compression_type + ".tif"
 
         # For a single file
         compressor = TiffCompressor(file)
-        compressed_file = compressor.compress_with_tifffile(compressed_name, method=compression_type)
-        return compressed_name
+        compressor.compress_with_tifffile(compressed_name, method=compression_type)
+        return compressed_name, False, None
 
     @classmethod
     def compress_and_check(cls, file):

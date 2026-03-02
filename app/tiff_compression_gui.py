@@ -120,17 +120,25 @@ class TiffCompressorGUI:
         self.progress_bar['value'] = 33
         self.root.update()
 
-        compressed_path = TiffCompressorManager.compress_file(
+        compressed_path, was_already_compressed, existing_method = TiffCompressorManager.compress_file(
             file_path,
             compression_type=self.compression_var.get()
         )
+
+        self.add_result(f"File: {os.path.basename(file_path)}\n")
+        
+        if was_already_compressed:
+            self.add_result(f"Already compressed with {existing_method} - skipping\n")
+            self.add_result(f"Kept file: {os.path.basename(file_path)}\n")
+            self.add_result("-" * 50 + "\n")
+            self.progress_bar['value'] = 100
+            return
 
         self.progress_bar['value'] = 66
         self.root.update()
 
         success = check_compression(file_path, compressed_path)
 
-        self.add_result(f"File: {os.path.basename(file_path)}\n")
         self.add_result(f"Compressed to: {os.path.basename(compressed_path)}\n")
         self.add_result(f"Verification: {'Success' if success else 'Failed'}\n")
 
