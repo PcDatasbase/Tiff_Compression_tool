@@ -1,4 +1,5 @@
-tifffile
-numpy
-matplotlib
-future
+tifffile==2026.2.24
+numpy==2.4.2
+matplotlib==3.10.8
+pillow==12.1.1
+future==1.0.0
